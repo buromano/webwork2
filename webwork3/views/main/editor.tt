@@ -188,6 +188,18 @@
             </div>
 
          </div>
+	 <div>
+	    <div class="checkbox">
+	       <label>
+		  <input type="checkbox" class="use-randomized-constants">
+		  Use randomized constants <button type="button" class="btn btn-link">help</button>
+	       </label>
+	    </div>
+	    <div class="form-group">
+                  <div id="randomizedConstantsArea">
+                  </div>
+            </div>
+	 </div>
       </div>
       
       <div class="tab-pane" id="viewer-tab"><p>Here&apos;s where the problem will appear.</p>
@@ -254,8 +266,9 @@ $showPartialCorrectAnswers = 1;
 #
 #
 
-<%=setup_section%>
+<%=randomized_constants_section%>
 
+<%=setup_section%>
 
 ##############################################################
 #
@@ -647,3 +660,180 @@ ENDDOCUMENT();
   </div>
 
 </script>
+
+<!-- The randomized constant option -->
+
+<script id="randomized-constants-option-template" type="text/template">
+
+<div class="row">
+  <div class="col-md-3">randomized constant</div>
+  <div class="col-md-2">min value</div>
+  <div class="col-md-2">max value</div>
+  <div class="col-md-2">step size</div>
+  <div class="col-md-2">non-zero</div>
+</div>
+
+<div class="row">
+   <div class="col-md-3">
+      <div class="checkbox row-sm-offset-2">
+      <label>
+	 <input type="checkbox" class="use-randomized-a">
+	 Use constant $a
+      </label>
+      </div>
+   </div>
+   <div class="col-md-2">
+      <div class="form-group">
+	 <input id="min-value-a-input" class="min-value-a form-control" type="text" placeholder="min value a">
+      </div>
+   </div>
+  <div class="col-md-2">
+      <div class="form-group">
+	 <input id="max-value-a-input" class="max-value-a form-control" type="text" placeholder="max value a">
+      </div>
+  </div>
+  <div class="col-md-2">
+      <div class="form-group">
+	<input id="step-size-a-input" class="step-size-a form-control" type="text" placeholder="step size a">
+      </div>
+  </div>
+  <div class="col-md-3">
+      <div class="checkbox row-sm-offset-2">
+      <label>
+        <input type="checkbox" class="a-non-zero">
+        Keep $a non-zero
+      </label>
+      </div>
+  </div>
+</div>  
+
+<div class="row">
+   <div class="col-md-3">
+      <div class="checkbox row-sm-offset-2">
+      <label>
+	 <input type="checkbox" class="use-randomized-b">
+	 Use constant $b
+      </label>
+      </div>
+   </div>
+   <div class="col-md-2">
+      <div class="form-group">
+	 <input id="min-value-b-input" class="min-value-b form-control" type="text" placeholder="min value b">
+      </div>
+   </div>
+  <div class="col-md-2">
+      <div class="form-group">
+	 <input id="max-value-b-input" class="max-value-b form-control" type="text" placeholder="max value b">
+      </div>
+  </div>
+  <div class="col-md-2">
+      <div class="form-group">
+	<input id="step-size-b-input" class="step-size-b form-control" type="text" placeholder="step size b">
+      </div>
+  </div>
+  <div class="col-md-3">
+      <div class="checkbox row-sm-offset-2">
+      <label>
+        <input type="checkbox" class="b-non-zero">
+        Keep $b non-zero
+      </label>
+      </div>
+  </div>
+</div>  
+
+<div class="row">
+   <div class="col-md-3">
+      <div class="checkbox row-sm-offset-2">
+      <label>
+	 <input type="checkbox" class="use-randomized-c">
+	 Use constant $c
+      </label>
+      </div>
+   </div>
+   <div class="col-md-2">
+      <div class="form-group">
+	 <input id="min-value-c-input" class="min-value-c form-control" type="text" placeholder="min value c">
+      </div>
+   </div>
+  <div class="col-md-2">
+      <div class="form-group">
+	 <input id="max-value-c-input" class="max-value-c form-control" type="text" placeholder="max value c">
+      </div>
+  </div>
+  <div class="col-md-2">
+      <div class="form-group">
+	<input id="step-size-c-input" class="step-size-c form-control" type="text" placeholder="step size c">
+      </div>
+  </div>
+  <div class="col-md-3">
+      <div class="checkbox row-sm-offset-2">
+      <label>
+        <input type="checkbox" class="c-non-zero">
+        Keep $c non-zero
+      </label>
+      </div>
+  </div>
+</div>  
+
+<div class="row">
+   <div class="col-md-3">
+      <div class="checkbox row-sm-offset-2">
+      <label>
+	 <input type="checkbox" class="use-randomized-d">
+	 Use constant $d
+      </label>
+      </div>
+   </div>
+   <div class="col-md-2">
+      <div class="form-group">
+	 <input id="min-value-d-input" class="min-value-d form-control" type="text" placeholder="min value d">
+      </div>
+   </div>
+  <div class="col-md-2">
+      <div class="form-group">
+	 <input id="max-value-d-input" class="max-value-d form-control" type="text" placeholder="max value d">
+      </div>
+  </div>
+  <div class="col-md-2">
+      <div class="form-group">
+	<input id="step-size-d-input" class="step-size-d form-control" type="text" placeholder="step size d">
+      </div>
+  </div>
+  <div class="col-md-3">
+      <div class="checkbox row-sm-offset-2">
+      <label>
+        <input type="checkbox" class="d-non-zero">
+        Keep $d non-zero
+      </label>
+      </div>
+  </div>
+</div>  
+
+
+</script>
+
+
+
+<script id="randomized-constants-setup" type="text/template">
+      <% if(use_randomized_a) {
+	 if(a_non_zero){
+	    print('$a = non_zero_random('+ min_value_a +',' + max_value_a + ',' + step_size_a +'); \n')
+	 } else {
+	    print('$a = random('+ min_value_a +',' + max_value_a + ',' + step_size_a +'); ')  };
+	 if(b_non_zero){
+	    print('$b = non_zero_random('+ min_value_b +',' + max_value_b + ',' + step_size_b +'); \n')
+	 } else {
+	    print('$b = random('+ min_value_b +',' + max_value_b + ',' + step_size_b +'); ')  };
+	 if(c_non_zero){
+	    print('$c = non_zero_random('+ min_value_c +',' + max_value_c + ',' + step_size_c +'); \n')
+	 } else {
+	    print('$c = random('+ min_value_c +',' + max_value_c + ',' + step_size_c +'); ')  };
+	 if(d_non_zero){
+	    print('$d = non_zero_random('+ min_value_d +',' + max_value_d + ',' + step_size_d +'); \n')
+	 } else {
+	    print('$d = random('+ min_value_d +',' + max_value_d + ',' + step_size_d +'); ')  };
+      
+      }%>
+</script>
+         
+

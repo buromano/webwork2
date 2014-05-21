@@ -45,7 +45,9 @@ var SimpleEditorView = Backbone.View.extend({
     },
     events: {"click .build-script-button": "buildScript",
         "change .answer-type": "changeAnswerType",
-        "click .save-file-button": "saveFile"},
+        "click .save-file-button": "saveFile",
+        "change .use-randomized-constants": "showRandomizedConstants",
+    },
     bindings: { ".problem-statement": {observe: "statement", events: ['blur']},
         ".problem-description": {observe: "description", events: ['blur']},
         ".problem-solution": {observe: "solution", events: ['blur']},
@@ -57,8 +59,10 @@ var SimpleEditorView = Backbone.View.extend({
         ".keywords": {observe: "keywords", events: ['blur'], onSet: function(val, options){
             return _(val.split(",")).map(function(kw) { return kw.trim()});
         }},
+        ".use-randomized-constants": {observe: "use_randomized_constants", events: ['blur']},
         ".answer-type": {observe: "answer_type", selectOptions: {collection: "this.answerTypeCollection",
-            defaultOption: {label: "Select an Answer Type...", value: null}}}
+            defaultOption: {label: "Select an Answer Type...", value: null}}},
+        ".randomized_constants_section": {observe: "randomized_constants_section", events: ['blur']}
     },
     problemChanged: function(model) {
   //      console.log(model);
@@ -69,7 +73,10 @@ var SimpleEditorView = Backbone.View.extend({
       this.showProblemView.render();
       this.$("a[href='#viewer-tab']").tab("show");
 
+      
     },
+
+
     updateFields: function () {
         this.model.set({problem_author: this.settings.getSettingValue("editor{author}"),
             institution: this.settings.getSettingValue("editor{authorInstitute}"),
@@ -100,7 +107,13 @@ var SimpleEditorView = Backbone.View.extend({
                 break;
             
         }
-    },        
+    },
+    
+    showRandomizedConstants: function(evt){
+console.log("in showRandomizedConstants");
+        this.randomizedConstantsView = (new RandomizedConstantsView({el: $("#randomizedConstantsArea")})).render()
+    },
+    
     saveFile: function(){
         var self = this;
         if(!this.buildScript()){ // build the script and check for errors. 
@@ -125,7 +138,8 @@ var SimpleEditorView = Backbone.View.extend({
         var fields = this.libraryTreeView.fields.attributes;
         _.extend(fields,{setup_section: this.answerView.getSetupText(this.model.attributes),
             statement_section: this.answerView.getStatementText(this.model.attributes),
-            answer_section: this.answerView.getAnswerText()});
+            answer_section: this.answerView.getAnswerText(),
+            randomized_constants_section: this.randomizedConstantsView.getSetupText()});
 console.log("in buildscript");
 
         _.extend(fields,this.model.attributes);
@@ -252,6 +266,38 @@ var MultipleChoiceAnswerView = AnswerChoiceView.extend({
         ".use-last-choice": "use_last_choice"},
 });
 
+var RandomizedConstantsView = Backbone.View.extend({
+    initialize: function(){
+        var ThisModel = Backbone.Model.extend({defaults: {use_randomized_a: true, min_value_a: "0", max_value_a: "3", step_size_a: "1", a_non_zero: false,
+                                             use_randomized_b: false, min_value_b: "-2", max_value_b: "12", step_size_b: "2", b_non_zero: false,
+                                             use_randomized_c: false, min_value_c: "-10", max_value_c: "-20", step_size_c: "15", c_non_zero: false,
+                                             use_randomized_d: false, min_value_d: "-100", max_value_d: "-100", step_size_d: "150", d_non_zero: false,
+                                              }});
+        this.model = new ThisModel();
+    },
+    render: function (){
+console.log("in randomizedConstantsView");
+        if(!$(".use-randomized-constants").checked == true){
+            this.$el.html($("#randomized-constants-option-template").html());
+        } else {
+            this.$el.html($("#empty-template").html());
+        }
+        this.stickit();
+        return this;
+    },
+    getSetupText: function () {
+        return _.template($("#randomized-constants-setup").html(),this.model.attributes);
+    },
+    bindings: { ".use-randomized-a": "use_randomized_a", ".min-value-a": "min_value_a", ".max-value-a": "max_value_a",
+        ".step-size-a": "step_size_a", ".a-non-zero": "a_non_zero",
+        ".use-randomized-b": "use_randomized_b", ".min-value-b": "min_value_b", ".max-value-b": "max_value_b",
+        ".step-size-b": "step_size_b", ".b-non-zero": "b_non_zero",
+        ".use-randomized-c": "use_randomized_c", ".min-value-c": "min_value_c", ".max-value-c": "max_value_c",
+        ".step-size-c": "step_size_c", ".c-non-zero": "c_non_zero",
+        ".use-randomized-d": "use_randomized_d", ".min-value-d": "min_value_d", ".max-value-d": "max_value_d",
+        ".step-size-d": "step_size_d", ".d-non-zero": "d_non_zero",
+        },
+});
 
 return SimpleEditorView;
 });
