@@ -30,8 +30,8 @@ define(['backbone','config'], function(Backbone,config){
             problem_source: ""
 		},
         validation: {
-            //statement: { required: true},
-            //answer_type: {required: true}
+            statement: { required: true},
+            answer_type: {required: true}
         },
         idAttribute: "path",
         url: function(){

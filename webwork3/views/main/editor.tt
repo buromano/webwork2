@@ -253,6 +253,7 @@ loadMacros(
    "PGchoicemacros.pl",
    "parserNumberWithUnits.pl",
    "parserFormulaWithUnits.pl",
+   "parserAssignment.pl",
    "AnswerFormatHelp.pl",        # provides help links to students
 );
 
@@ -428,6 +429,50 @@ ENDDOCUMENT();
 </script>
 
 <script id="formula-option-pg-answer" type="text/template">
+   ANS($answer->cmp);
+</script>
+<!--- The Equation Option -->
+
+
+<script id="equation-option-template" type="text/template">
+  <div class="form-horizontal">
+   <div class="form-group">
+      <label class="col-md-3 control-label">Answer:</label>   
+      <div class="col-md-8">      
+        <input id="Answer-input" class="answer form-control" type="text" placeholder="Formula">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-3 control-label">Variables:</label>   
+      <div class="col-md-8">      
+        <input id="variables-input" class="variables form-control" type="text" placeholder="variables">
+      </div>
+    </div>
+  </div>
+</script>
+
+
+
+<script id="equation-option-pg-setup" type="text/template">
+      Context("Numeric");
+      parser::Assignment->Allow;
+      Context()->variables->are(<% print(variables.split(",").join("=>'Real',") + "=>'Real'"); %>);
+
+      $answer = <% print ('Compute("' + answer +'");') %>
+</script>
+
+
+<script id="equation-option-pg-text" type="text/template">
+   Context()->texStrings;
+   BEGIN_TEXT
+   <%=statement%>$BR
+   Answer:\{$answer->ans_rule(10)\} \{AnswerFormatHelp("formulas")\}\
+
+   END_TEXT
+   Context()->normalStrings;
+</script>
+
+<script id="equation-option-pg-answer" type="text/template">
    ANS($answer->cmp);
 </script>
 
@@ -815,25 +860,32 @@ ENDDOCUMENT();
 
 
 <script id="randomized-constants-setup" type="text/template">
-      <% if(use_randomized_a) {
+      <% if($(".use-randomized-constants").prop("checked") && use_randomized_a) {
 	 if(a_non_zero){
-	    print('$a = non_zero_random('+ min_value_a +',' + max_value_a + ',' + step_size_a +'); \n')
+	    print('\t$a = non_zero_random('+ min_value_a +',' + max_value_a + ',' + step_size_a +'); \n')
 	 } else {
-	    print('$a = random('+ min_value_a +',' + max_value_a + ',' + step_size_a +'); ')  };
+	    print('\t$a = random('+ min_value_a +',' + max_value_a + ',' + step_size_a +'); \n')  }
+      };
+      if($(".use-randomized-constants").prop("checked") && use_randomized_b) {
 	 if(b_non_zero){
-	    print('$b = non_zero_random('+ min_value_b +',' + max_value_b + ',' + step_size_b +'); \n')
+	    print('\t$b = non_zero_random('+ min_value_b +',' + max_value_b + ',' + step_size_b +'); \n')
 	 } else {
-	    print('$b = random('+ min_value_b +',' + max_value_b + ',' + step_size_b +'); ')  };
+	    print('\t$b = random('+ min_value_b +',' + max_value_b + ',' + step_size_b +'); \n')  }
+      };
+      if($(".use-randomized-constants").prop("checked") && use_randomized_c) {
 	 if(c_non_zero){
-	    print('$c = non_zero_random('+ min_value_c +',' + max_value_c + ',' + step_size_c +'); \n')
+	    print('\t$c = non_zero_random('+ min_value_c +',' + max_value_c + ',' + step_size_c +'); \n')
 	 } else {
-	    print('$c = random('+ min_value_c +',' + max_value_c + ',' + step_size_c +'); ')  };
+	    print('\t$c = random('+ min_value_c +',' + max_value_c + ',' + step_size_c +'); \n')  }
+      };
+      if($(".use-randomized-constants").prop("checked") && use_randomized_d) {
 	 if(d_non_zero){
-	    print('$d = non_zero_random('+ min_value_d +',' + max_value_d + ',' + step_size_d +'); \n')
+	    print('\t$d = non_zero_random('+ min_value_d +',' + max_value_d + ',' + step_size_d +'); \n')
 	 } else {
-	    print('$d = random('+ min_value_d +',' + max_value_d + ',' + step_size_d +'); ')  };
+	    print('\t$d = random('+ min_value_d +',' + max_value_d + ',' + step_size_d +'); \n')  }
+      };
       
-      }%>
+      %>
 </script>
          
 

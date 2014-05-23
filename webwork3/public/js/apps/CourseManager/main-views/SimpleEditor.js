@@ -17,7 +17,7 @@ var SimpleEditorView = Backbone.View.extend({
         this.settings = options.settings;
         this.model.on({"change": this.problemChanged});
 
-        var answerTypes = ['Number','String','Formula','Interval or Inequality',
+        var answerTypes = ['Number','String','Formula','Equation','Interval or Inequality',
                 'Comma Separated List of Values','Multiple Choice'];
         this.answerTypeCollection = _(answerTypes).map(function(type){return {label: type, value: type};});
         this.inverseBindings = util.invertBindings(this.bindings);
@@ -40,6 +40,7 @@ var SimpleEditorView = Backbone.View.extend({
         this.libraryTreeView = new LibraryTreeView({el: this.$("#library-subjects"), parent: this, 
                 type: "subjects", orientation: "vertical"}); 
         this.libraryTreeView.render();
+        this.randomizedConstantsView = (new RandomizedConstantsView({el: this.$("#randomizedConstantsArea")}) ).render()
         this.stickit();
         return this;
     },
@@ -59,7 +60,7 @@ var SimpleEditorView = Backbone.View.extend({
         ".keywords": {observe: "keywords", events: ['blur'], onSet: function(val, options){
             return _(val.split(",")).map(function(kw) { return kw.trim()});
         }},
-        ".use-randomized-constants": {observe: "use_randomized_constants", events: ['blur']},
+        ".use-randomized-constants": "use_randomized_constants",
         ".answer-type": {observe: "answer_type", selectOptions: {collection: "this.answerTypeCollection",
             defaultOption: {label: "Select an Answer Type...", value: null}}},
         ".randomized_constants_section": {observe: "randomized_constants_section", events: ['blur']}
@@ -96,6 +97,9 @@ var SimpleEditorView = Backbone.View.extend({
             case "Formula":
                 this.answerView = (new FormulaAnswerView({el: $("#answerArea")})).render();
                 break;
+            case "Equation":
+                this.answerView = (new EquationAnswerView({el: $("#answerArea")})).render();
+                break;
             case "Interval or Inequality":
                 this.answerView = (new IntervalAnswerView({el: $("#answerArea")})).render();
                 break;
@@ -110,8 +114,11 @@ var SimpleEditorView = Backbone.View.extend({
     },
     
     showRandomizedConstants: function(evt){
-console.log("in showRandomizedConstants");
-        this.randomizedConstantsView = (new RandomizedConstantsView({el: $("#randomizedConstantsArea")})).render()
+        if(this.randomizedConstantsView.$el.hasClass("hidden")){
+            this.randomizedConstantsView.$el.removeClass("hidden");
+        } else {
+            this.randomizedConstantsView.$el.addClass("hidden");
+        }
     },
     
     saveFile: function(){
@@ -139,7 +146,8 @@ console.log("in showRandomizedConstants");
         _.extend(fields,{setup_section: this.answerView.getSetupText(this.model.attributes),
             statement_section: this.answerView.getStatementText(this.model.attributes),
             answer_section: this.answerView.getAnswerText(),
-            randomized_constants_section: this.randomizedConstantsView.getSetupText()});
+            randomized_constants_section: this.randomizedConstantsView.getRandomizedConstantsText()
+            });
 console.log("in buildscript");
 
         _.extend(fields,this.model.attributes);
@@ -221,10 +229,22 @@ var FormulaAnswerView = AnswerChoiceView.extend({
         this.pgSetupTemplate = _.template($("#formula-option-pg-setup").html());
         this.pgTextTemplate = _.template($("#formula-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#formula-option-pg-answer").html());
-        var ThisModel = Backbone.Model.extend({defaults: {answer: "", require_units: false, variables: ""}});
+        var ThisModel = Backbone.Model.extend({defaults: {answer: "", require_units: false, variables: "x"}});
         this.model = new ThisModel();
     },
     bindings: { ".answer": "answer", ".require-units": "require_units", ".variables" : "variables"},
+});
+
+var EquationAnswerView = AnswerChoiceView.extend({
+    initialize: function () {
+        this.viewTemplate = $("#equation-option-template").html();    
+        this.pgSetupTemplate = _.template($("#equation-option-pg-setup").html());
+        this.pgTextTemplate = _.template($("#equation-option-pg-text").html());
+        this.pgAnswerTemplate = _.template($("#equation-option-pg-answer").html());
+        var ThisModel = Backbone.Model.extend({defaults: {answer: "",  variables: "x,y"}});
+        this.model = new ThisModel();
+    },
+    bindings: { ".answer": "answer", ".variables" : "variables"},
 });
 
 
@@ -267,27 +287,30 @@ var MultipleChoiceAnswerView = AnswerChoiceView.extend({
 });
 
 var RandomizedConstantsView = Backbone.View.extend({
-    initialize: function(){
-        var ThisModel = Backbone.Model.extend({defaults: {use_randomized_a: true, min_value_a: "0", max_value_a: "3", step_size_a: "1", a_non_zero: false,
+    initialize: function(options){
+        var ThisModel = Backbone.Model.extend({defaults: {use_randomized_a: false, min_value_a: "0", max_value_a: "3", step_size_a: "1", a_non_zero: false,
                                              use_randomized_b: false, min_value_b: "-2", max_value_b: "12", step_size_b: "2", b_non_zero: false,
-                                             use_randomized_c: false, min_value_c: "-10", max_value_c: "-20", step_size_c: "15", c_non_zero: false,
-                                             use_randomized_d: false, min_value_d: "-100", max_value_d: "-100", step_size_d: "150", d_non_zero: false,
+                                             use_randomized_c: false, min_value_c: "-10", max_value_c: "20", step_size_c: "5", c_non_zero: false,
+                                             use_randomized_d: false, min_value_d: "-100", max_value_d: "100", step_size_d: "10", d_non_zero: false,
                                               }});
         this.model = new ThisModel();
     },
     render: function (){
-console.log("in randomizedConstantsView");
-        if(!$(".use-randomized-constants").checked == true){
-            this.$el.html($("#randomized-constants-option-template").html());
-        } else {
-            this.$el.html($("#empty-template").html());
+        console.log("in randomizedConstantsView");
+        this.$el.html($("#randomized-constants-option-template").html());
+        this.$el.addClass("hidden");
+        if($(".use-randomized-constants").prop("checked")){
+            this.$el.removeClass("hidden");
         }
         this.stickit();
         return this;
     },
-    getSetupText: function () {
+    
+    getRandomizedConstantsText: function () {
+console.log("in getRandomizedConstantsText");
         return _.template($("#randomized-constants-setup").html(),this.model.attributes);
     },
+    
     bindings: { ".use-randomized-a": "use_randomized_a", ".min-value-a": "min_value_a", ".max-value-a": "max_value_a",
         ".step-size-a": "step_size_a", ".a-non-zero": "a_non_zero",
         ".use-randomized-b": "use_randomized_b", ".min-value-b": "min_value_b", ".max-value-b": "max_value_b",
